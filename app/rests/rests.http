@@ -1,0 +1,35 @@
+@url=http://localhost:3000/api/contact
+POST {{url}}/ 
+Content-Type: application/json
+
+{
+    "name": "Long Tran 3",
+    "email": "longtran@example.com",
+    "address": "Vinh Long",
+    "phone": "1234567",
+    "favorite": true
+}
+
+###
+GET {{url}}/?name=long+tran
+###
+GET {{url}}/
+
+###
+GET {{url}}/63b56cf55f13e2a5425fcc94
+###
+PUT  {{url}}/63b56cf55f13e2a5425fcc94
+Content-Type: application/json
+
+{
+    "name": "Long Tran updated"
+}
+
+###
+DELETE {{url}}/63b63c72c4e3acd954553617
+
+### 
+GET {{url}}/favorite
+
+###
+DELETE {{url}}/
