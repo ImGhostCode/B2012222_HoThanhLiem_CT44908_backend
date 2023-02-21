@@ -1,21 +1,34 @@
-const app = require("./app");
-const config = require("./app/config/index");
-const MongoDB = require("./app/utils/mongodb.util");
-//start server
+require("dotenv").config();
+const app = require("./src/app");
+const config = require("./src/v1/config/index");
+const mongoose = require("./src/v1/databases/init.mongodb");
+const logger = require('./src/v1/utils/logger')
 
+const PORT = config.app.port;
+const MONGO_URI = config.db.uri;
+let server
 async function startServer() {
   try {
-    await MongoDB.connect(config.db.uri);
-    console.log("Connected to database!");
-
-    const PORT = config.app.port;
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
+    await mongoose.connect(MONGO_URI);
+    logger.info("Connected mongoose success!...")
+    server = app.listen(PORT, () => {
+      console.log(`Server start with port ${PORT}`);
     });
+
+
   } catch (error) {
-    console.log("Cannot connect to database!", error);
-    process.exit();
+    logger.error(`Cannot connect to database! ${error.message}`)
+    process.exit(0);
   }
 }
+
+process.on("SIGINT", async () => {
+  if (server) {
+    await server.close(() => console.log(`Exits server express`));
+    await mongoose.connection.close()
+    process.exit(0);
+  }
+
+});
 
 startServer();

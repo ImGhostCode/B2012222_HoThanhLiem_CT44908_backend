@@ -1,20 +1,26 @@
 {
-  "name": "contactbook-backend",
+  "name": "contact-book-api",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node --watch server.js"
+  "directories": {
+    "doc": "docs"
   },
+  "scripts": {
+    "dev": "node --watch server.js"
+  },
+  "keywords": [],
   "author": "ghost",
   "license": "ISC",
   "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^4.18.2",
-    "mongodb": "^4.13.0"
-  },
-  "devDependencies": {
-    "nodemon": "^2.0.20"
+    "compression": "^1.7.4",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "helmet": "^5.1.0",
+    "mongoose": "^6.3.3",
+    "morgan": "^1.10.0",
+    "redis": "^3.1.2",
+    "validator": "^13.7.0",
+    "winston": "^3.7.2"
   }
 }
