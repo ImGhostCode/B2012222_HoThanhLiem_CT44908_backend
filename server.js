@@ -6,6 +6,7 @@ const logger = require('./src/v1/utils/logger')
 
 const PORT = config.app.port;
 const MONGO_URI = config.db.uri;
+
 let server
 async function startServer() {
   try {
