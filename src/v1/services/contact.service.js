@@ -1,8 +1,9 @@
 const { isValidObjectId, default: mongoose } = require("mongoose");
 const _Contact = require("../models/_Contact.model");
+const { links } = require("express/lib/response");
 
 class ContactService {
-  constructor() {}
+  constructor() { }
 
   extractContactData(payload) {
     const contact = {
@@ -33,7 +34,26 @@ class ContactService {
       code: 201,
       status: "success",
       message: null,
-      data: result,
+      data: {
+        ...result._doc,
+        links: [
+          {
+            rel: "self",
+            href: `/api/v1/contacts/${result._id}`,
+            action: "GET",
+          },
+          {
+            rel: "update",
+            href: `/api/v1/contacts/${result._id}`,
+            action: "PUT",
+          },
+          {
+            rel: "delete",
+            href: `/api/v1/contacts/${result._id}`,
+            action: "DELETE",
+          },
+        ]
+      },
     };
   }
 
@@ -43,7 +63,40 @@ class ContactService {
       code: 200,
       status: "success",
       message: null,
-      data: cursor,
+      data: {
+        contacts: cursor.map((contact) => ({
+          ...contact._doc,
+          links: [
+            {
+              rel: "self",
+              href: `/api/v1/contacts/${contact._id}`,
+              action: "GET",
+            },
+            {
+              rel: "update",
+              href: `/api/v1/contacts/${contact._id}`,
+              action: "PUT",
+            },
+            {
+              rel: "delete",
+              href: `/api/v1/contacts/${contact._id}`,
+              action: "DELETE",
+            },
+          ],
+        })),
+        links: [
+          {
+            rel: "self",
+            href: `/api/v1/contacts`,
+            action: "GET",
+          },
+          {
+            rel: "create",
+            href: `/api/v1/contacts`,
+            action: "POST",
+          },
+        ]
+      },
     };
   }
 
@@ -55,7 +108,39 @@ class ContactService {
       code: 200,
       status: "success",
       message: null,
-      data: result,
+      data: {
+        ...cursor.map((contact) => ({
+          ...contact._doc,
+          links: [
+            {
+              rel: "self",
+              href: `/api/v1/contacts/${contact._id}`,
+              action: "GET",
+            },
+            {
+              rel: "update",
+              href: `/api/v1/contacts/${contact._id}`,
+              action: "PUT",
+            },
+            {
+              rel: "delete",
+              href: `/api/v1/contacts/${contact._id}`,
+              action: "DELETE",
+            },
+          ],
+        })), links: [
+          {
+            rel: "self",
+            href: `/api/v1/contacts`,
+            action: "GET",
+          },
+          {
+            rel: "create",
+            href: `/api/v1/contacts`,
+            action: "POST",
+          },
+        ]
+      },
     };
   }
 
@@ -67,7 +152,25 @@ class ContactService {
       code: 200,
       status: "success",
       message: null,
-      data: result,
+      data: {
+        ...result._doc, links: [
+          {
+            rel: "self",
+            href: `/api/v1/contacts/${result._id}`,
+            action: "GET",
+          },
+          {
+            rel: "update",
+            href: `/api/v1/contacts/${result._id}`,
+            action: "PUT",
+          },
+          {
+            rel: "delete",
+            href: `/api/v1/contacts/${result._id}`,
+            action: "DELETE",
+          },
+        ]
+      },
     };
   }
 
@@ -84,7 +187,25 @@ class ContactService {
       code: 200,
       status: "success",
       message: "Contact was updated successfully",
-      data: result,
+      data: {
+        ...result._doc, links: [
+          {
+            rel: "self",
+            href: `/api/v1/contacts/${result._id}`,
+            action: "GET",
+          },
+          {
+            rel: "update",
+            href: `/api/v1/contacts/${result._id}`,
+            action: "PUT",
+          },
+          {
+            rel: "delete",
+            href: `/api/v1/contacts/${result._id}`,
+            action: "DELETE",
+          },
+        ]
+      },
     };
   }
 
@@ -96,7 +217,10 @@ class ContactService {
       code: 200,
       status: "success",
       message: "Contact was deleted successfully",
-      data: result,
+      data: {
+        ...result._doc, links: [
+        ]
+      },
     };
   }
 
@@ -116,7 +240,20 @@ class ContactService {
       code: 200,
       status: "success",
       message: `${result.deletedCount} contacts were deleted successfully`,
-      data: result,
+      data: {
+        contacts: result, links: [
+          {
+            rel: "self",
+            href: `/api/v1/contacts`,
+            action: "GET",
+          },
+          {
+            rel: "create",
+            href: `/api/v1/contacts`,
+            action: "POST",
+          },
+        ]
+      },
     };
   }
 }
