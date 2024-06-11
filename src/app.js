@@ -8,6 +8,8 @@ const fs = require('fs');
 const path = require("path");
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
+const session = require('express-session');
+const { passportMiddleware } = require('./v1/middlewares/index.middleware');
 
 const swaggerDefinition = {
   openapi: '3.0.0',
@@ -62,6 +64,10 @@ app.use(
     extended: true,
   })
 );
+
+app.use(session({ secret: 'SESSION_SECRET', resave: false, saveUninitialized: false }));
+app.use(passportMiddleware.initialize());
+app.use(passportMiddleware.session());
 
 //router
 app.use("/api", require("./v1/routes/index.router"));
