@@ -38,6 +38,7 @@ module.exports = {
         return res.status(code).json({ code, status, message, data });
       }
     } catch (error) {
+      console.log(error);
       return next(
         new ApiError(
           500,

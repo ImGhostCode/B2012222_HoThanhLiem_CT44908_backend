@@ -1,4 +1,4 @@
-@urlDev=http://localhost:3051
+@urlDev=http://localhost:3000
 
 ### create contacts
 POST {{urlDev}}/api/contacts/

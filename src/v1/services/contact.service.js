@@ -1,6 +1,8 @@
 const { isValidObjectId, default: mongoose } = require("mongoose");
 const _Contact = require("../models/_Contact.model");
 const { links } = require("express/lib/response");
+const { REDIS_GET, REDIS_LRANGE, REDIS_SET, REDIS_DEL, REDIS_FLUSHDB } = require('../services/redis.service');
+
 
 class ContactService {
   constructor() { }
@@ -30,6 +32,8 @@ class ContactService {
       { returnDocument: "after", upsert: true }
     );
 
+    await REDIS_DEL('contacts');
+
     return {
       code: 201,
       status: "success",
@@ -58,14 +62,21 @@ class ContactService {
   }
 
   async find(filter) {
-    const cursor = await _Contact.find(filter);
+    let cursor;
+    const cachedContacts = await REDIS_GET('contacts');
+    if (cachedContacts) {
+      cursor = JSON.parse(cachedContacts);
+    } else {
+      cursor = await _Contact.find(filter);
+      await REDIS_SET('contacts', JSON.stringify(cursor));
+    }
     return {
       code: 200,
       status: "success",
       message: null,
       data: {
         contacts: cursor.map((contact) => ({
-          ...contact._doc,
+          ...contact._doc ? contact._doc : contact,
           links: [
             {
               rel: "self",
@@ -101,7 +112,7 @@ class ContactService {
   }
 
   async findByName(name) {
-    const result = await _Contact.find({
+    const cursor = await _Contact.find({
       name: { $regex: new RegExp(name), $options: "i" },
     });
     return {
@@ -109,7 +120,7 @@ class ContactService {
       status: "success",
       message: null,
       data: {
-        ...cursor.map((contact) => ({
+        contacts: [...cursor.map((contact) => ({
           ...contact._doc,
           links: [
             {
@@ -128,7 +139,7 @@ class ContactService {
               action: "DELETE",
             },
           ],
-        })), links: [
+        }))], links: [
           {
             rel: "self",
             href: `/api/v1/contacts`,
@@ -145,15 +156,22 @@ class ContactService {
   }
 
   async findById(id) {
-    const result = await _Contact.findOne({
-      _id: isValidObjectId(id) ? new mongoose.Types.ObjectId(id) : null,
-    });
+    let result
+    const cachedContact = await REDIS_GET(id + '_contact');
+    if (cachedContact) {
+      result = JSON.parse(cachedContact);
+    } else {
+      result = await _Contact.findOne({
+        _id: isValidObjectId(id) ? new mongoose.Types.ObjectId(id) : null,
+      });
+      await REDIS_SET(id + '_contact', JSON.stringify(result));
+    }
     return {
       code: 200,
       status: "success",
       message: null,
       data: {
-        ...result._doc, links: [
+        ...result._doc ? result._doc : result, links: [
           {
             rel: "self",
             href: `/api/v1/contacts/${result._id}`,
@@ -182,6 +200,8 @@ class ContactService {
     const result = await _Contact.findOneAndUpdate(filter, update, {
       new: true,
     });
+
+    await REDIS_FLUSHDB();
 
     return {
       code: 200,
@@ -213,6 +233,9 @@ class ContactService {
     const result = await _Contact.findOneAndDelete({
       _id: isValidObjectId(id) ? new mongoose.Types.ObjectId(id) : null,
     });
+
+    await REDIS_DEL('contacts');
+
     return {
       code: 200,
       status: "success",
@@ -236,6 +259,7 @@ class ContactService {
 
   async deleteAll() {
     const result = await _Contact.deleteMany({});
+    await REDIS_DEL('contacts');
     return {
       code: 200,
       status: "success",

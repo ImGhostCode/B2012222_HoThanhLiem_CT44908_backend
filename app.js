@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const contactRouter = require("./app/routes/contact.route");
+const contactRouter = require("./app/routes/contact.route");
 const ApiError = require("./app/api-error");
 const app = express();
 
@@ -10,6 +11,7 @@ app.use(express.json());
 
 //router
 app.use("/api/contact", contactRouter);
+app.use("/api/auth/", contactRouter);
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to contact book application." });
