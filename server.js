@@ -15,10 +15,12 @@ async function startServer() {
     server = app.listen(PORT, () => {
       console.log(`Server start with port ${PORT}`);
     });
+    return true;
 
 
   } catch (error) {
     logger.error(`Cannot connect to database! ${error.message}`)
+    return false;
     process.exit(0);
   }
 }
@@ -33,3 +35,5 @@ process.on("SIGINT", async () => {
 });
 
 startServer();
+
+exports.startServer = startServer;
